@@ -17,10 +17,12 @@
     "devDependencies": {
         "@babel/core": "^7.7.2",
         "@babel/plugin-proposal-class-properties": "^7.7.0",
+        "@babel/plugin-transform-runtime": "^7.8.3",
         "@babel/preset-env": "^7.7.1",
         "@babel/preset-typescript": "^7.7.2",
         "@types/jest": "^25.1.4",
         "@types/node": "^13.9.2",
+        "@types/puppeteer": "^2.0.1",
         "@typescript-eslint/eslint-plugin": "^2.13.0",
         "@typescript-eslint/parser": "^2.13.0",
         "babel-loader": "^8.0.6",
@@ -41,5 +43,9 @@
     "bugs": {
         "url": "https://github.com/kevinbai0/node-ts-starter/issues"
     },
-    "homepage": "https://github.com/kevinbai0/node-ts-starter#readme"
+    "homepage": "https://github.com/kevinbai0/node-ts-starter#readme",
+    "dependencies": {
+        "node-fetch": "^2.6.0",
+        "puppeteer": "^2.1.1"
+    }
 }
