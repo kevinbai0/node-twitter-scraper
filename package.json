@@ -23,6 +23,7 @@
         "@types/jest": "^25.1.4",
         "@types/node": "^13.9.2",
         "@types/puppeteer": "^2.0.1",
+        "@types/uuid": "^7.0.2",
         "@typescript-eslint/eslint-plugin": "^2.13.0",
         "@typescript-eslint/parser": "^2.13.0",
         "babel-loader": "^8.0.6",
@@ -46,6 +47,7 @@
     "homepage": "https://github.com/kevinbai0/node-ts-starter#readme",
     "dependencies": {
         "node-fetch": "^2.6.0",
-        "puppeteer": "^2.1.1"
+        "puppeteer": "^2.1.1",
+        "uuid": "^7.0.2"
     }
 }
