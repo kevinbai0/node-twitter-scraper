@@ -4,6 +4,7 @@ import { serverUrl } from "../config"
 import { ScraperState, Tweet, User, Processable } from "./types"
 import handleRequest from "../middleware/handleRequest"
 import scrollPage from "../middleware/pageScroller"
+import { chromePath } from "../systemConfig"
 
 export interface TweetsScraperConfig {
     keyword: string
@@ -34,8 +35,7 @@ async function scrapeTweets(config: TweetsScraperConfig) {
     const state: ScraperState = getInitialState()
 
     const browser = await puppeteer.launch({
-        executablePath:
-            "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+        executablePath: chromePath
     })
     const page = await browser.newPage()
 
@@ -75,7 +75,7 @@ async function scrapeTweets(config: TweetsScraperConfig) {
     eventsEmitter.on(
         "process_tweets_and_users",
         (tweets: (Tweet & Processable)[], users: (User & Processable)[]) => {
-            //console.log(tweets.length, users.length)
+            
         }
     )
 }
