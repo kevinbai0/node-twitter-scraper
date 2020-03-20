@@ -1,7 +1,7 @@
 {
-    "name": "node-ts-starter",
-    "version": "1.0.0",
-    "description": "My starter code for projects running with Node, Typescript, Babel, Webpack, ESLint, and Prettier",
+    "name": "twitter-scraper",
+    "version": "0.1.0",
+    "description": "Robust twitter scraper built with node",
     "main": "index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
