@@ -8,7 +8,8 @@
         "build": "webpack",
         "dev": "webpack --watch",
         "dev:server": "webpack-dev-server --config webpack.server.js",
-        "start": "node ./dist/bundle.js"
+        "start": "node ./dist/bundle.js",
+        "preprocess": "webpack --config webpack.preprocess.js && node ./dist/preprocess.js"
     },
     "repository": {
         "type": "git",
@@ -21,6 +22,7 @@
         "@babel/preset-env": "^7.7.1",
         "@babel/preset-typescript": "^7.7.2",
         "@types/jest": "^25.1.4",
+        "@types/mongodb": "^3.5.2",
         "@types/node": "^13.9.2",
         "@types/puppeteer": "^2.0.1",
         "@types/uuid": "^7.0.2",
@@ -46,6 +48,7 @@
     },
     "homepage": "https://github.com/kevinbai0/node-ts-starter#readme",
     "dependencies": {
+        "mongodb": "^3.5.5",
         "node-fetch": "^2.6.0",
         "puppeteer": "^2.1.1",
         "uuid": "^7.0.2"

@@ -5,6 +5,8 @@ import { ScraperState, Tweet, User, Processable } from "./types"
 import handleRequest from "../middleware/handleRequest"
 import scrollPage from "../middleware/pageScroller"
 import { chromePath } from "../systemConfig"
+import worldCities from "../utils/worldCitiesParser"
+import usStates from "../utils/statesParser"
 
 export interface TweetsScraperConfig {
     keyword: string
@@ -30,54 +32,91 @@ function getInitialState(): ScraperState {
     }
 }
 
+// get data
+
 async function scrapeTweets(config: TweetsScraperConfig) {
-    const eventsEmitter = new events.EventEmitter()
-    const state: ScraperState = getInitialState()
+    const usData = await usStates
+    const worldData = await worldCities
+    // eslint-disable-next-line no-async-promise-executor
+    return new Promise(async (resolve, reject) => {
+        const eventsEmitter = new events.EventEmitter()
+        const state: ScraperState = getInitialState()
 
-    const browser = await puppeteer.launch({
-        executablePath: chromePath
-    })
-    const page = await browser.newPage()
-
-    // parse config file
-    const { searchKeyword, endDate, startDate } = (() => {
-        return {
-            searchKeyword: config.keyword.split(" ").join("+"),
-            endDate: config.endDate.toISOString().slice(0, 10),
-            startDate: config.startDate.toISOString().slice(0, 10)
-        }
-    })()
-
-    const pageUrl = `${serverUrl}/search?q=${searchKeyword}+until%3A${endDate}+since%3A${startDate}`
-    page.setRequestInterception(true)
-
-    page.on("request", async req =>
-        req.continue({
-            url: req.url().replace("count=20", "count=200")
+        const browser = await puppeteer.launch({
+            executablePath: chromePath
         })
-    )
-    page.on("requestfinished", req => handleRequest(req, state, eventsEmitter))
+        const page = await browser.newPage()
+        page.setDefaultNavigationTimeout(0)
 
-    await page.goto(pageUrl).catch()
+        // parse config file
+        const { searchKeyword, endDate, startDate } = (() => {
+            return {
+                searchKeyword: config.keyword.split(" ").join("+"),
+                endDate: config.endDate.toISOString().slice(0, 10),
+                startDate: config.startDate.toISOString().slice(0, 10)
+            }
+        })()
 
-    const bodyHandle = (await page.evaluateHandle(
-        () => document.body
-    )) as JSHandle<HTMLElement>
+        const pageUrl = `${serverUrl}/search?q=${searchKeyword}+until%3A${endDate}+since%3A${startDate}`
+        page.setRequestInterception(true)
 
-    eventsEmitter.on("loaded", () => {
-        console.log("Ready")
-        scrollPage(page, bodyHandle).then(val => {
-            console.log("Close", val)
-            browser.close()
+        page.on("request", async req =>
+            req.continue({
+                url: req.url().replace("count=20", "count=200")
+            })
+        )
+        page.on("requestfinished", req =>
+            handleRequest(req, state, eventsEmitter)
+        )
+
+        await page.goto(pageUrl).catch(err => reject(err))
+
+        const bodyHandle = (await page.evaluateHandle(
+            () => document.body
+        )) as JSHandle<HTMLElement>
+
+        eventsEmitter.on("loaded", () => {
+            scrollPage(page, bodyHandle).then(val => {
+                browser.close()
+                resolve()
+            })
         })
-    })
 
-    eventsEmitter.on(
-        "process_tweets_and_users",
-        (tweets: (Tweet & Processable)[], users: (User & Processable)[]) => {
-            
-        }
-    )
+        eventsEmitter.on(
+            "process_tweets_and_users",
+            (
+                tweets: (Tweet & Processable)[],
+                users: (User & Processable)[]
+            ) => {
+                const count = tweets.reduce((sum, tweet) => {
+                    if (tweet.user_id) {
+                        // find the user id
+                        const user = state.data.users[tweet.user_id]
+                        if (!user || !user.location) return sum
+                        const candidates = worldData.cities.filter(city => {
+                            return (
+                                user.location?.includes(city.country) ||
+                                user.location?.includes(city.iso2)
+                            )
+                        })
+                        console.log(user.location)
+
+                        /*if (foundCity.country == "United States") {
+                            const state = usData.lookup[foundCity.city_ascii]
+                            if (state) {
+                                console.log(
+                                    state.city,
+                                    state.state_id,
+                                    user.location
+                                )
+                            }
+                        }*/
+                    }
+                    return sum
+                }, 0)
+            }
+        )
+    })
 }
 
 export default scrapeTweets
