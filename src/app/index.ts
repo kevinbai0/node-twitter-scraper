@@ -1,5 +1,5 @@
 import scrapeTweets from "../lib/scrapeTweets"
-import { User, ResponseData } from "../lib/types"
+import { ResponseData } from "../lib/types"
 import db from "./db"
 import { entitiesPromise, populations, state } from "../app/setup"
 import { tomorrow } from "./utils/helpers"
@@ -17,21 +17,22 @@ async function scrapeAllDays() {
         return
     }
 
-    let currentDate = new Date("2020-01-01")
+    let currentDate = new Date("2020-03-15")
 
     async function onData(data: ResponseData) {
         const dataToProcess = await handleRequest(data, state)
         const classifiedData = classifyLocations(
             dataToProcess,
+            state,
             entities,
             populationsLookup
         )
 
-        saveToDatabase(classifiedData, state, database!)
+        saveToDatabase(classifiedData, database!)
     }
 
     function scrapeDay(date: Date) {
-        console.log("Scraping next day", date)
+        console.log("Scraping", date)
         const returnValue = scrapeTweets(
             {
                 keyword: "coronavirus",
@@ -41,7 +42,7 @@ async function scrapeAllDays() {
             onData
         )
             .then(() => {
-                console.log("FINISHED SCRAPING", date)
+                console.log("Finished", date)
                 scrapeDay(currentDate)
             })
             .catch(err => {

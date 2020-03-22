@@ -1,11 +1,11 @@
-import { Tweet, User } from "../../lib/types"
+import { User } from "../../lib/types"
 import entityMatcher from "../locationClassifier/entityMatcher"
-import { LocatedTweet } from "../types"
+import { LocatedTweet, AppState } from "../types"
 import { Entities } from "../preprocessing/types"
 import { CityPopulation } from "../utils/populations"
 
 type Data = {
-    tweets: Tweet[]
+    tweets: LocatedTweet[]
     users: User[]
 }
 type Pop = {
@@ -17,14 +17,19 @@ type ReturnType = {
     users: User[]
 }
 
-type Fn = (data: Data, entities: Entities, populationsLookup: Pop) => ReturnType
+type Fn = (
+    data: Data,
+    state: AppState,
+    entities: Entities,
+    populationsLookup: Pop
+) => ReturnType
 
-const classifyLocations: Fn = (data, entities, populationsLookup) => {
+const classifyLocations: Fn = (data, state, entities, populationsLookup) => {
     const { tweets, users } = data
     const newTweets: LocatedTweet[] = tweets.map(tweet => {
         if (!tweet.user_id) return tweet
 
-        const user = users[tweet.user_id]
+        const user = state.data.users[tweet.user_id]
         if (!user || !user.location) return tweet
 
         const foundLocation = entityMatcher(
@@ -35,7 +40,9 @@ const classifyLocations: Fn = (data, entities, populationsLookup) => {
 
         return {
             ...tweet,
-            location: foundLocation
+            location: foundLocation,
+            hasLocation: !!foundLocation,
+            userLocation: user.location
         }
     })
 

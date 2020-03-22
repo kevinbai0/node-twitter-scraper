@@ -48,6 +48,7 @@ async function scrapeTweets(
             const url = req.url()
             if (!url.includes("https://api.twitter.com/2/search/adaptive.json"))
                 return
+            console.log("GOOD")
             const response = req.response()
             if (!response) return
 

@@ -1,21 +1,13 @@
 import { Tweet, User } from "../lib/types"
 
-export interface Processable {
-    state: "waiting" | "processing"
-}
-
-export interface TweetsObj<T> {
-    tweets: { [key: string]: Tweet & T }
-    users: { [key: string]: User & T }
+export interface TweetsObj {
+    tweets: { [key: string]: LocatedTweet }
+    users: { [key: string]: User }
 }
 
 export interface AppState {
-    data: TweetsObj<{}>
-    queue: TweetsObj<Processable>
+    data: TweetsObj
 }
-
-export type ProcessableTweet = Tweet & Processable
-export type ProcessableUser = Tweet & User
 
 export interface LocationData {
     country: string
@@ -23,4 +15,8 @@ export interface LocationData {
     city?: string
 }
 
-export type LocatedTweet = Tweet & { location?: LocationData }
+export type LocatedTweet = Tweet & {
+    location?: LocationData
+    userLocation?: string
+    hasLocation: boolean
+}

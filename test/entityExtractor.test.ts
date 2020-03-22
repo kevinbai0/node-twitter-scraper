@@ -46,6 +46,17 @@ it("entities", async () => {
     )
     const populations = await extractPopulations()
     const tests = [
+        ["St. Bonaventure, NY", "st bonaventure, new york, united states"],
+        ["Las Vegas,NV", "las vegas, nevada, united states"],
+        ["cardiff", "cardiff, united kingdom"],
+        ["New York City", "new york city, new york, united states"],
+        ["usa", "united states"],
+        ["Maryland, USA", "maryland, united states"],
+        ["Colorado ", "colorado, united states"],
+        ["Scotland", "scotland"], // maybe
+        ["Sydney, New South Wales"],
+        ["UK", "united kingdom"],
+        ["Salt Lake City, UT", "salt lake city, utah, united states"]
         /*["New York City", "new york city, new york, united states"],
         ["St. Paul, Minnesota", "st. paul, minnesota, united states"],*/
         //["Kerry, Ireland", "kerry, ireland"]

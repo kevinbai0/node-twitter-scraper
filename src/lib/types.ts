@@ -8,7 +8,7 @@ export interface Tweet {
     user_id?: number
     user_id_str?: string
     retweet_count?: number
-    favourite_count?: number
+    favorite_count?: number
     reply_count?: number
 }
 
