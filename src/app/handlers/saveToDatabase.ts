@@ -16,10 +16,18 @@ const saveToDatabase: Fn = async (data, db) => {
     const usersCollection = db.collection("twitter_accounts")
 
     if (tweets.length > 0) {
-        await tweetsCollection.insertMany(tweets)
+        try {
+            await tweetsCollection.insertMany(tweets)
+        } catch (err) {
+            // each error only means
+        }
     }
     if (users.length > 0) {
-        await usersCollection.insertMany(users)
+        try {
+            await usersCollection.insertMany(users)
+        } catch (err) {
+            // do nothing
+        }
     }
 }
 

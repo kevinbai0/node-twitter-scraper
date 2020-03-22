@@ -8,13 +8,6 @@ export function tomorrow(today: Date) {
 
 export function getInitialState(): AppState {
     return {
-        data: {
-            tweets: {},
-            users: {}
-        },
-        queue: {
-            tweets: {},
-            users: {}
-        }
+        count: 0
     }
 }

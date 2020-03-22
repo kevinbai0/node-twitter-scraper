@@ -6,7 +6,7 @@ export interface TweetsObj {
 }
 
 export interface AppState {
-    data: TweetsObj
+    count: number
 }
 
 export interface LocationData {

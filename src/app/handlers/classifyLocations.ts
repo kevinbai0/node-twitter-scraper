@@ -3,6 +3,7 @@ import entityMatcher from "../locationClassifier/entityMatcher"
 import { LocatedTweet, AppState } from "../types"
 import { Entities } from "../preprocessing/types"
 import { CityPopulation } from "../utils/populations"
+import db from "../db"
 
 type Data = {
     tweets: LocatedTweet[]
@@ -22,29 +23,45 @@ type Fn = (
     state: AppState,
     entities: Entities,
     populationsLookup: Pop
-) => ReturnType
+) => Promise<ReturnType>
 
-const classifyLocations: Fn = (data, state, entities, populationsLookup) => {
+const classifyLocations: Fn = async (
+    data,
+    state,
+    entities,
+    populationsLookup
+) => {
     const { tweets, users } = data
-    const newTweets: LocatedTweet[] = tweets.map(tweet => {
-        if (!tweet.user_id) return tweet
+    const collection = db
+        .then(database => database?.collection("twitter_accounts"))
+        .catch(() => {
+            // do nothing
+        })
+    const newTweets: LocatedTweet[] = await Promise.all(
+        tweets.map(async tweet => {
+            if (!tweet.user_id) return tweet
+            if (!collection) return tweet
+            const cln = await collection
+            if (!cln) return tweet
+            const user: User | null = await cln.findOne({
+                id_str: tweet.user_id_str
+            })
+            if (!user || !user.location) return tweet
 
-        const user = state.data.users[tweet.user_id]
-        if (!user || !user.location) return tweet
+            const foundLocation = entityMatcher(
+                user.location,
+                entities,
+                populationsLookup
+            )
 
-        const foundLocation = entityMatcher(
-            user.location,
-            entities,
-            populationsLookup
-        )
-
-        return {
-            ...tweet,
-            location: foundLocation,
-            hasLocation: !!foundLocation,
-            userLocation: user.location
-        }
-    })
+            return {
+                ...tweet,
+                location: foundLocation,
+                hasLocation: !!foundLocation,
+                userLocation: user.location
+            }
+        })
+    )
 
     return {
         tweets: newTweets,

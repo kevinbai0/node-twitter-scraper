@@ -64,7 +64,10 @@ async function scrapeTweets(
             }
         })
 
-        await page.goto(pageUrl).catch(err => reject(err))
+        await page.goto(pageUrl).catch(err => {
+            console.log("couldn't go to page: ", pageUrl)
+            reject(err)
+        })
 
         const bodyHandle = (await page.evaluateHandle(
             () => document.body
