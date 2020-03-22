@@ -9,6 +9,7 @@
         "build": "webpack",
         "dev": "webpack --watch",
         "dev:server": "webpack-dev-server --config webpack.server.js",
+        "start:app": "webpack --config webpack.app.js && node ./dist/app.js",
         "start": "node ./dist/bundle.js",
         "preprocess": "webpack --config webpack.preprocess.js && node ./dist/preprocess.js"
     },

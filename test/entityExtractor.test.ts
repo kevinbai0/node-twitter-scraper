@@ -1,10 +1,11 @@
-import entityMatcher from "../src/lib/entityMatcher"
-import { readStream, Entities } from "../src/utils/preprocessHelpers"
-import extractPopulations from "../src/lib/populations"
+import entityMatcher from "../src/app/locationClassifier/entityMatcher"
+import { readStream } from "../src/app/preprocessing/helpers"
+import extractPopulations from "../src/app/utils/populations"
+import { Entities } from "../src/app/preprocessing/types"
 
 /*it("entities", async () => {
     const entities = await readStream<Entities>(
-        "/Users/kevinbai/Programming/twitter-scraper/src/data/entities.json"
+        "/users/kevinbai/Programming/twitter-scraper/src/app/data/entities.json"
     )
     const populations = await extractPopulations()
 
@@ -23,6 +24,15 @@ import extractPopulations from "../src/lib/populations"
         ["Rotterdam, The Netherlands", "rotterdam, south holland, netherlands"],
         ["Brazil", "brazil"],
         ["Los Angeles ", "los angeles, california, united states"],
+        ["Geneva, Switzerland", "geneva, canton of geneva, switzerland"],
+        ["Toronto, ON Canada", "toronto, ontario, canada"],
+        ["Washington DC", "washington dc, district of columbia, united states"],
+        ["DC", "washington dc, district of columbia, united states"],
+        [
+            "Washington D.C.",
+            "washington dc, district of columbia, united states"
+        ],
+        ["D.C.", "washington dc, district of columbia, united states"]
     ]
 
     tests.forEach(test => {
@@ -32,12 +42,11 @@ import extractPopulations from "../src/lib/populations"
 
 it("entities", async () => {
     const entities = await readStream<Entities>(
-        "/Users/kevinbai/Programming/twitter-scraper/src/data/entities.json"
+        "/users/kevinbai/Programming/twitter-scraper/src/app/data/entities.json"
     )
     const populations = await extractPopulations()
     const tests = [
         /*["New York City", "new york city, new york, united states"],
-        ["Geneva, Switzerland", "geneva, switzerland"],
         ["St. Paul, Minnesota", "st. paul, minnesota, united states"],*/
         //["Kerry, Ireland", "kerry, ireland"]
     ]

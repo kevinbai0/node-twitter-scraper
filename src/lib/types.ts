@@ -22,24 +22,17 @@ export interface User {
     followers_count?: string
 }
 
+export type Tweets = {
+    [key: string]: Tweet
+}
+
+export type Users = {
+    [key: string]: User
+}
+
 export interface ResponseData {
     globalObjects?: {
-        tweets?: { [key: string]: Tweet }
-        users?: { [key: string]: User }
+        tweets?: Tweets
+        users?: Users
     }
-}
-
-export interface Processable {
-    state: "waiting" | "processing"
-}
-
-export interface TweetsObj<T> {
-    tweets: { [key: string]: Tweet & T }
-    users: { [key: string]: User & T }
-}
-
-export interface ScraperState {
-    loaded: boolean
-    data: TweetsObj<{}>
-    processing: TweetsObj<Processable>
 }
