@@ -13,9 +13,10 @@ import {
     generateCity,
     RegionsById,
     Country,
-    City
+    City,
+    Location,
+    Entities
 } from "./preprocessHelpers"
-import { performance } from "perf_hooks"
 
 async function getCountriesLookup(): Promise<{
     lookup: Countries
@@ -92,18 +93,9 @@ function createEntities(
     regions: Region[],
     countries: Country[]
 ) {
-    const entities: {
-        [key: string]: {
-            partial: { isAbbr: boolean; obj: City | Region | Country }[]
-            complete: { isAbbr: boolean; obj: City | Region | Country }[]
-        }
-    } = {}
+    const entities: Entities = {}
 
-    function mapEntities(
-        values: string[],
-        obj: City | Region | Country,
-        isAbbr: boolean
-    ) {
+    function mapEntities(values: string[], obj: Location, isAbbr: boolean) {
         if (values.length > 1) {
             values.forEach(value => {
                 if (entities[value]) {
@@ -149,7 +141,6 @@ function createEntities(
 }
 
 async function main() {
-    const start = performance.now()
     const countries = await getCountriesLookup()
     const regions = await getRegions(countries.lookup)
     const cities = await getCitiesLookup(countries.lookup, regions.lookupById)

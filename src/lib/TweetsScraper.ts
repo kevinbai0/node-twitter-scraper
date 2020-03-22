@@ -5,8 +5,8 @@ import { ScraperState, Tweet, User, Processable } from "./types"
 import handleRequest from "../middleware/handleRequest"
 import scrollPage from "../middleware/pageScroller"
 import { chromePath } from "../systemConfig"
-import worldCities from "../utils/worldCitiesParser"
-import usStates from "../utils/statesParser"
+import { readStream, Entities } from "../utils/preprocessHelpers"
+import entityMatcher from "./entityMatcher"
 
 export interface TweetsScraperConfig {
     keyword: string
@@ -24,19 +24,23 @@ function getInitialState(): ScraperState {
         processing: {
             tweets: {},
             users: {}
-        },
-        processed: {
-            tweets: {},
-            users: {}
         }
     }
 }
 
 // get data
+const entitiesPromise = readStream<Entities>(
+    "/Users/kevinbai/Programming/twitter-scraper/src/data/entities.json"
+)
+
+import extractPopulations from "./populations"
+
+const populations = extractPopulations()
 
 async function scrapeTweets(config: TweetsScraperConfig) {
-    const usData = await usStates
-    const worldData = await worldCities
+    const entities = await entitiesPromise
+    const populationsLookup = await populations
+    console.log(entities["new"].partial.length)
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve, reject) => {
         const eventsEmitter = new events.EventEmitter()
@@ -76,7 +80,7 @@ async function scrapeTweets(config: TweetsScraperConfig) {
         )) as JSHandle<HTMLElement>
 
         eventsEmitter.on("loaded", () => {
-            scrollPage(page, bodyHandle).then(val => {
+            scrollPage(page, bodyHandle).then(() => {
                 browser.close()
                 resolve()
             })
@@ -93,13 +97,23 @@ async function scrapeTweets(config: TweetsScraperConfig) {
                         // find the user id
                         const user = state.data.users[tweet.user_id]
                         if (!user || !user.location) return sum
-                        const candidates = worldData.cities.filter(city => {
-                            return (
-                                user.location?.includes(city.country) ||
-                                user.location?.includes(city.iso2)
+                        const foundLocation = entityMatcher(
+                            user.location,
+                            entities,
+                            populationsLookup
+                        )
+                        if (foundLocation) {
+                            console.log(
+                                "\x1b[36m",
+                                `${user.location} ||| ${foundLocation}`
                             )
-                        })
-                        console.log(user.location)
+                        } else {
+                            console.log(
+                                "\x1b[31m",
+                                "Didn't find location |||",
+                                `"${user.location}"`
+                            )
+                        }
 
                         /*if (foundCity.country == "United States") {
                             const state = usData.lookup[foundCity.city_ascii]

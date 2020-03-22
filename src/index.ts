@@ -1,8 +1,5 @@
 import scrapeTweets from "./lib/TweetsScraper"
 import db from "./db"
-import text from "./utils/citiesParser"
-
-text
 
 db.then(database => {
     if (!database) return

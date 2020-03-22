@@ -42,5 +42,4 @@ export interface ScraperState {
     loaded: boolean
     data: TweetsObj<{}>
     processing: TweetsObj<Processable>
-    processed: TweetsObj<{}>
 }

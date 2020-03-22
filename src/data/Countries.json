@@ -1386,17 +1386,8 @@
         "currency": "NPR"
     },
     {
-        "id": 155,
-        "name": "Netherlands Antilles",
-        "iso3": "ANT",
-        "iso2": "AN",
-        "phone_code": "",
-        "capital": "",
-        "currency": ""
-    },
-    {
         "id": 156,
-        "name": "Netherlands The",
+        "name": "Netherlands",
         "iso3": "NLD",
         "iso2": "NL",
         "phone_code": "31",
@@ -2082,7 +2073,7 @@
         "id": 232,
         "name": "United Kingdom",
         "iso3": "GBR",
-        "iso2": "GB",
+        "iso2": "UK",
         "phone_code": "44",
         "capital": "London",
         "currency": "GBP"

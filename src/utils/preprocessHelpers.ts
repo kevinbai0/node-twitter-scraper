@@ -1,4 +1,5 @@
 import fs from "fs"
+import { normalizeString } from "./helpers"
 
 export interface JSONCountryData {
     id: number
@@ -48,18 +49,27 @@ export interface City {
     lng: string
 }
 
+export type Location = City | Region | Country
+
+export interface Entity {
+    partial: { isAbbr: boolean; obj: Location }[]
+    complete: { isAbbr: boolean; obj: Location }[]
+}
+
 export type Countries = { [key: string]: Country }
 export type Regions = { [key: string]: Region[] }
 export type Cities = { [key: string]: City[] }
 
 export type RegionsById = { [key: number]: Region }
 
+export type Entities = { [key: string]: Entity }
+
 export function generateCountry(data: JSONCountryData): Country {
     return {
         id: data.id,
-        name: data.name.toLowerCase(),
-        iso2: data.iso2.toLowerCase(),
-        iso3: data.iso3.toLowerCase()
+        name: normalizeString(data.name),
+        iso2: normalizeString(data.iso2),
+        iso3: normalizeString(data.iso3)
     }
 }
 
@@ -69,9 +79,9 @@ export function generateRegion(
 ): Region {
     return {
         id: data.id,
-        name: data.name.toLowerCase(),
-        abbr: data.state_code.toLowerCase(),
-        country: countriesLookup[data.country_code.toLowerCase()].name
+        name: normalizeString(data.name),
+        abbr: normalizeString(data.state_code),
+        country: countriesLookup[normalizeString(data.country_code)].name
     }
 }
 
@@ -81,10 +91,10 @@ export function generateCity(
     regionsLookupById: { [key: number]: Region }
 ): City {
     const region = regionsLookupById[data.state_id]
-    const country = countriesLookup[data.country_code.toLowerCase()]
+    const country = countriesLookup[normalizeString(data.country_code)]
     return {
         id: parseInt(data.id),
-        name: data.name.toLowerCase(),
+        name: normalizeString(data.name),
         region: region.name,
         regionCode: region.abbr,
         country: country.name,
