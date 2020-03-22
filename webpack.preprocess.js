@@ -3,7 +3,7 @@ const path = require("path")
 module.exports = {
     target: "node",
     mode: "development",
-    entry: "./src/utils/preprocessor.ts",
+    entry: "./src/app/preprocessing/preprocessor.ts",
     resolve: {
         extensions: [".ts", ".tsx", ".js", ".json"]
     },

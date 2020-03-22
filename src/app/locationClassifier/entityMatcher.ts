@@ -16,7 +16,7 @@ export default function(
     populationsLookup: { [key: string]: CityPopulation[] }
 ): LocationData | undefined {
     const extractedEntities = value
-        .split(" ")
+        .split(/[,/ ]+/g)
         .map(candidate => {
             const normalized = normalizeString(candidate).replace(
                 /[^a-z\d ]+/i,
@@ -55,23 +55,24 @@ export default function(
     // combine any partial entities, get lists of all full entities
     const fullEntities = extractedEntities.map(entitySet => {
         const newEntities: Location[][] = []
+        for (let root = 0; root < entitySet.length; ++root) {
+            let foundMatch = false
+            for (let len = entitySet.length - root; len > 1; --len) {
+                if (foundMatch) continue
+                const subset = entitySet.slice(root, root + len)
+                const matched = matchPartials(subset)
 
-        for (let i = 1; i <= entitySet.length; ++i) {
-            const prev = entitySet[i - 1]
-            if (i == entitySet.length) {
-                newEntities.push(prev.entity.complete.map(comp => comp.obj))
-                break
+                if (matched.length) {
+                    // if we've matched a full entity, we want to skip everything else
+                    newEntities.push(matched)
+                    root += len - 1
+                    foundMatch = true
+                }
             }
-            const curr = entitySet[i]
-            const matched = matchPartial(prev, curr)
-            if (matched.length) {
-                // if we've matched a full entity, we want to skip the current as the prev
-                newEntities.push(matched)
-                ++i
-            }
-            // look at prev and see if it is full
-            else {
-                newEntities.push(prev.entity.complete.map(comp => comp.obj))
+            if (!foundMatch) {
+                newEntities.push(
+                    entitySet[root].entity.complete.map(comp => comp.obj)
+                )
             }
         }
         // get rid of any empty sets
@@ -83,7 +84,7 @@ export default function(
 
     // if we found more than 1 potential match, we got an ambiguous case so we don't count
     if (finalCandidates.length == 0) {
-        return undefined
+        return
     }
     if (finalCandidates.length == 1)
         return extractLocationData(finalCandidates[0])
@@ -92,6 +93,20 @@ export default function(
         candidate => (candidate as Country).iso2
     )
     if (country.length > 0) return extractLocationData(country[0])
+
+    // see if name matches U.S. state
+    const usStates = finalCandidates.filter(
+        loc =>
+            (loc as Region).abbr && (loc as Region).country == "united states"
+    )
+    if (usStates.length) {
+        let usState = usStates[0]
+        finalCandidates.forEach(candidate => {
+            if (matches(usState, candidate))
+                usState = mostSpecificLocation(usState, candidate)
+        })
+        return extractLocationData(usState)
+    }
 
     const candidatesWithPop = finalCandidates.reduce((accum, candidate) => {
         const locData = extractLocationData(candidate)
@@ -119,23 +134,11 @@ function linkVectors(matrix: Location[][]): Location[] {
     if (matrix.length == 1) return matrix[0]
 
     //initialize location matrix with -1, locationMatrix (not NxM)
-    /** example
-     * -1 -1 -1
-     * -1 -1
-     * -1 -1 -1 -1
-     * ...
-     */
-
     const locationMatrix: (Location | undefined)[][] = matrix.map(vector =>
         vector.map(() => undefined)
     )
 
     // initialize the first row of the location matrix
-    /**
-     *  0  1  2
-     * -1 -1
-     * -1 -1 -1 -1
-     */
     matrix[0].forEach((loc, i) => (locationMatrix[0][i] = loc))
 
     for (let i = 1; i < matrix.length; ++i) {
@@ -166,13 +169,14 @@ function linkVectors(matrix: Location[][]): Location[] {
     ) as Location[]
 }
 
-function matchPartial(
-    a: { key: string; entity: Entity },
-    b: { key: string; entity: Entity }
-) {
-    const combined = `${a.key} ${b.key}`
-    return a.entity.partial
-        .filter(partial => partial.obj.name == combined)
+function matchPartials(entities: { key: string; entity: Entity }[]) {
+    const target = entities.map(entity => entity.key).join(" ")
+    return entities[0].entity.partial
+        .filter(
+            partial =>
+                partial.obj.name == target ||
+                (partial.obj as Region).abbr == target
+        )
         .map(partial => partial.obj)
 }
 
@@ -216,11 +220,10 @@ function extractLocationData(loc: Location): LocationData {
     }
 }
 
-/*export function locationToString(location: Location) {
-    const info = extractLocationData(location)
+export function locationToString(info: LocationData) {
+    if (!info) return ""
     if (!info.city && !info.region) return info.country
     if (info.city && info.region)
         return `${info.city}, ${info.region}, ${info.country}`
     return `${info.city || info.region}, ${info.country}`
 }
-*/

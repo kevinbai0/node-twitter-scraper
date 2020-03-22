@@ -31,6 +31,19 @@ async function main() {
             }
         ]
     }
+    entities["us"].complete.push({
+        isAbbr: false,
+        obj: countries.lookup["united states"]
+    })
+    entities["usa"].complete.push({
+        isAbbr: false,
+        obj: countries.lookup["united states"]
+    })
+
+    entities["uk"].complete.push({
+        isAbbr: false,
+        obj: countries.lookup["united kingdom"]
+    })
 
     // save entities
     const writer = fs.createWriteStream(
