@@ -1,4 +1,5 @@
 import fs from "fs"
+
 import { normalizeString } from "../preprocessing/helpers"
 
 export interface CityPopulation {
@@ -31,7 +32,7 @@ function readCSV(path: string, lineDelimiter = "\n"): Promise<string[][]> {
 
 export default async function extractPopulations() {
     const data = await readCSV(
-        "/home/kevin/Programming/twitter-scraper/src/app/data/worldcities.csv",
+        (process.env.DIR_PATH || ".") + "/src/app/data/worldcities.csv",
         "\r\n"
     )
 

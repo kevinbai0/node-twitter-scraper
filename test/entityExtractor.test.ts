@@ -7,7 +7,7 @@ import { Entities } from "../src/app/preprocessing/types"
 
 it("entities", async () => {
     const entities = await readStream<Entities>(
-        "/home/kevin/Programming/twitter-scraper/src/app/data/entities.json"
+        (process.env.DIR_PATH || ".") + "/src/app/data/entities.json"
     )
     const populations = await extractPopulations()
 
@@ -46,7 +46,7 @@ it("entities", async () => {
 
 it("entities", async () => {
     const entities = await readStream<Entities>(
-        "/home/kevin/Programming/twitter-scraper/src/app/data/entities.json"
+        (process.env.DIR_PATH || ".") + "/src/app/data/entities.json"
     )
     const populations = await extractPopulations()
     const tests = [

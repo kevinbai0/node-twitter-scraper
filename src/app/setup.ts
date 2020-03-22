@@ -5,7 +5,7 @@ import { Entities } from "./preprocessing/types"
 
 // get data
 const entitiesPromise = readStream<Entities>(
-    "/home/kevin/Programming/twitter-scraper/src/app/data/entities.json"
+    (process.env.DIR_PATH || ".") + "/src/app/data/entities.json"
 )
 const populations = extractPopulations()
 

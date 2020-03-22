@@ -1,4 +1,5 @@
 import fs from "fs"
+
 import { getCountriesLookup, getRegions, getCitiesLookup } from "./parseData"
 import createEntities from "./createEntities"
 
@@ -47,7 +48,7 @@ async function main() {
 
     // save entities
     const writer = fs.createWriteStream(
-        "/home/kevin/Programming/twitter-scraper/src/app/data/entities.json"
+        (process.env.DIR_PATH || ".") + "/src/app/data/entities.json"
     )
     writer.write(JSON.stringify(entities), err => {
         if (err) console.error(err)

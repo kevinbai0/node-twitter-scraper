@@ -3,7 +3,6 @@ import events from "events"
 import { serverUrl } from "../config"
 import { ResponseData } from "./types"
 import scrollPage from "./pageScroller"
-import { chromePath } from "../systemConfig"
 
 export interface TweetsScraperConfig {
     keyword: string
@@ -21,7 +20,7 @@ async function scrapeTweets(
         const eventsEmitter = new events.EventEmitter()
 
         const browser = await puppeteer.launch({
-            executablePath: chromePath
+            executablePath: process.env.CHROME_PATH
         })
         const page = await browser.newPage()
         page.setDefaultNavigationTimeout(0)

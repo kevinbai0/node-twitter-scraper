@@ -24,7 +24,7 @@ export async function getCountriesLookup(): Promise<{
     const countriesLookup: Countries = {}
 
     const data = await readStream<JSONCountryData[]>(
-        "/home/kevin/Programming/twitter-scraper/src/app/data/Countries.json"
+        (process.env.DIR_PATH || ".") + "/src/app/data/Countries.json"
     )
     const iterable = data.map(value => {
         const country = generateCountry(value)
@@ -49,7 +49,7 @@ export async function getRegions(
     const lookupById: RegionsById = {}
     const lookupByCode: Regions = {}
     const data = await readStream<JSONRegionData[]>(
-        "/home/kevin/Programming/twitter-scraper/src/app/data/States.json"
+        (process.env.DIR_PATH || ".") + "/src/app/data/States.json"
     )
 
     const iterable = data.map(value => {
@@ -73,7 +73,7 @@ export async function getCitiesLookup(
 ): Promise<{ lookup: Cities; iterable: City[] }> {
     const citiesLookup: Cities = {}
     const data = await readStream<JSONCityData[]>(
-        "/home/kevin/Programming/twitter-scraper/src/app/data/Cities.json"
+        (process.env.DIR_PATH || ".") + "/src/app/data/Cities.json"
     )
     const iterable = data.map(value => {
         const city = generateCity(value, countriesLookup, regions)

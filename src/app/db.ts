@@ -1,7 +1,9 @@
 import MongoDB from "mongodb"
-import { connString } from "../systemConfig"
+require("dotenv").config()
 
-const db = new MongoDB.MongoClient(connString, { useUnifiedTopology: true })
+const db = new MongoDB.MongoClient(process.env.MONGO_URL || "", {
+    useUnifiedTopology: true
+})
 
 export default db
     .connect()
