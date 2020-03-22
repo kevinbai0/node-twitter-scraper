@@ -17,7 +17,7 @@ async function scrapeAllDays() {
         return
     }
 
-    let currentDate = new Date("2020-03-15")
+    let currentDate = new Date("2020-01-01")
 
     async function onData(data: ResponseData) {
         const dataToProcess = await handleRequest(data, state)
@@ -33,6 +33,15 @@ async function scrapeAllDays() {
 
     function scrapeDay(date: Date) {
         console.log("Scraping", date)
+        if (date.getMilliseconds() > new Date("2020-01-31").getMilliseconds()) {
+            console.log(
+                "End time",
+                new Date(),
+                new Date().getHours(),
+                new Date().getMinutes()
+            )
+            return
+        }
         const returnValue = scrapeTweets(
             {
                 keyword: "coronavirus",

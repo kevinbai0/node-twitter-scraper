@@ -31,7 +31,7 @@ function readCSV(path: string, lineDelimiter = "\n"): Promise<string[][]> {
 
 export default async function extractPopulations() {
     const data = await readCSV(
-        "/users/kevinbai/Programming/twitter-scraper/src/app/data/worldcities.csv",
+        "/home/kevin/Programming/twitter-scraper/src/app/data/worldcities.csv",
         "\r\n"
     )
 

@@ -47,7 +47,7 @@ async function main() {
 
     // save entities
     const writer = fs.createWriteStream(
-        "/users/kevinbai/Programming/twitter-scraper/src/app/data/entities.json"
+        "/home/kevin/Programming/twitter-scraper/src/app/data/entities.json"
     )
     writer.write(JSON.stringify(entities), err => {
         if (err) console.error(err)
