@@ -28,13 +28,18 @@ export default async function handleRequest(
 
     return {
         tweets: locatedTweets,
-        users
+        users,
+        lookupUsers: data?.globalObjects?.users
     }
 }
 
 function printData(state: AppState, tweets: LocatedTweet[]) {
     if (tweets.length > 0) {
         state.count += tweets.length
-        console.log(state.count, tweets[0].created_at)
+        console.log(
+            state.count,
+            tweets[0].created_at,
+            (process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2) + "mb"
+        )
     }
 }

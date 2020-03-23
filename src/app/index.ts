@@ -46,6 +46,12 @@ async function scrapeAllDays() {
             })
         console.log(duplicates.length)*/
         //database.collection("tweets").deleteMany({ _id: { $in: duplicates } })
+        const cursor = await database.collection("tweets").updateMany(
+            {
+                created_at: { $type: "string" }
+            },
+            [{ $set: { created_at: { $toDate: "$created_at" } } }]
+        )
 
         await database
             .collection("tweets")
@@ -58,14 +64,17 @@ async function scrapeAllDays() {
         process.exit(1)
     }
 
-    const startDate = new Date("2020-01-01")
+    process.exit(0)
+
+    return
+
+    const startDate = new Date("2020-02-05")
     let currentDate = new Date(startDate)
 
     async function onData(data: ResponseData) {
         const dataToProcess = await handleRequest(data, state)
         const classifiedData = await classifyLocations(
             dataToProcess,
-            state,
             entities,
             populationsLookup
         )
@@ -74,7 +83,7 @@ async function scrapeAllDays() {
     }
 
     async function scrapeDay(date: Date): Promise<unknown> {
-        if (date.getTime() > new Date("2020-01-18").getTime()) {
+        if (date.getTime() > new Date("2020-02-20").getTime()) {
             console.log("Finished scraping")
             return
         }
