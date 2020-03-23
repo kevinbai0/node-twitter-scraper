@@ -14,6 +14,7 @@ const saveToDatabase: Fn = async (data, db) => {
 
     const tweetsCollection = db.collection("tweets")
     const usersCollection = db.collection("twitter_accounts")
+
     if (tweets.length > 0) {
         try {
             await tweetsCollection.insertMany(

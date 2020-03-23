@@ -52,6 +52,7 @@
     },
     "homepage": "https://github.com/kevinbai0/node-ts-starter#readme",
     "dependencies": {
+        "@types/node-fetch": "^2.5.5",
         "dotenv": "^8.2.0",
         "mongodb": "^3.5.5",
         "node-fetch": "^2.6.0",

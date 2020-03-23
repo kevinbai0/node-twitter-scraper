@@ -25,7 +25,6 @@ async function scrapeAllDays() {
     }
 
     try {
-        // remove duplicates
         await database
             .collection("tweets")
             .createIndex({ id_str: "text" }, { unique: true })
@@ -37,7 +36,7 @@ async function scrapeAllDays() {
         process.exit(1)
     }
 
-    const startDate = new Date("2020-02-19")
+    const startDate = new Date("2020-01-01")
     let currentDate = new Date(startDate)
 
     async function onData(data: ResponseData) {
@@ -52,7 +51,7 @@ async function scrapeAllDays() {
     }
 
     async function scrapeDay(date: Date): Promise<unknown> {
-        if (date.getTime() > new Date("2020-03-06").getTime()) {
+        if (date.getTime() > new Date("2020-03-24").getTime()) {
             console.log("Finished scraping")
             return
         }
@@ -61,7 +60,7 @@ async function scrapeAllDays() {
             currentDate = tomorrow(currentDate)
             await scrapeTweets(
                 {
-                    keyword: "coronavirus",
+                    keyword: "(%covid19)",
                     startDate: date,
                     endDate: tomorrow(date)
                 },

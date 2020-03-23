@@ -1,8 +1,7 @@
-import puppeteer, { JSHandle } from "puppeteer"
-import events from "events"
+import puppeteer from "puppeteer"
 import { serverUrl } from "../config"
-import { ResponseData } from "./types"
-import scrollPage from "./pageScroller"
+import { ResponseData, AddEntry, ReplaceEntry } from "./types"
+import fetch from "node-fetch"
 
 export interface TweetsScraperConfig {
     keyword: string
@@ -16,8 +15,7 @@ async function scrapeTweets(
 ) {
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve, reject) => {
-        let hasLoaded = false
-        const eventsEmitter = new events.EventEmitter()
+        let visited = false
 
         const browser = await puppeteer.launch({
             executablePath: process.env.CHROME_PATH
@@ -54,11 +52,9 @@ async function scrapeTweets(
                 const data = (await response.json().catch(() => {
                     // do nothing
                 })) as ResponseData
-                if (!hasLoaded) {
-                    hasLoaded = true
-                    eventsEmitter.emit("loaded")
-                }
-                handleData(data)
+                if (!data || visited) return
+                visited = true
+                handleResponse(data, req)
             } catch (err) {
                 console.error(err)
             }
@@ -68,28 +64,91 @@ async function scrapeTweets(
             console.log("couldn't go to page: ", pageUrl)
             reject(err)
         })
+        function handleResponse(data: ResponseData, req: puppeteer.Request) {
+            handleData(data)
+            const initialHeaders = req.headers()
+            const initialUrl = req.url().replace("count=20", "count=200")
+            let count = 0
+            let prevCount = -1
+            let newData = data
+            let prevCursor = ""
+            const interval = setInterval(async () => {
+                if (count == prevCount) return
+                prevCount += 1
+                const result = await fetchApi(
+                    initialHeaders,
+                    initialUrl,
+                    newData
+                )
+                count += 1
+                if (!result || result.cursor == prevCursor) {
+                    clearInterval(interval)
+                    resolve()
+                    return
+                }
+                handleData(result.data)
+                newData = result.data
+                prevCursor = result.cursor || ""
+            }, 50)
+        }
 
-        const bodyHandle = (await page.evaluateHandle(
-            () => document.body
-        )) as JSHandle<HTMLElement>
-
-        eventsEmitter.on("loaded", () => {
-            scrollPage(page, bodyHandle, () => {
-                browser.close()
-                resolve()
-            })
-        })
-        /*
-        eventsEmitter.on(
-            "process_tweets_and_users",
-            (
-                tweets: (Tweet & Processable)[],
-                users: (User & Processable)[]
-            ) => {
-                receiveTweets(tweets, users)
+        async function fetchApi(
+            headers: puppeteer.Headers,
+            url: string,
+            data: ResponseData
+        ) {
+            const cursor = getCursor(data)
+            const newUrl = getUrl(url, cursor)
+            if (!newUrl) return
+            const json: ResponseData = await fetch(
+                newUrl.replace("count=20", "count=200"),
+                { headers }
+            )
+                .then(res => res.json())
+                .catch(err => {
+                    console.error(err)
+                    resolve()
+                })
+            return {
+                data: json,
+                cursor: cursor
             }
-        )*/
+        }
     })
 }
 
 export default scrapeTweets
+
+function getUrl(url: string, cursor?: string) {
+    if (!cursor) return
+    const newUrl = url.concat(`&cursor=${cursor}`)
+
+    return newUrl
+}
+
+function getCursor(data: ResponseData) {
+    const instructions = data.timeline?.instructions
+    if (!instructions?.length) return
+    if (instructions.length == 1) {
+        const entry = instructions[0] as AddEntry
+        const entries =
+            entry.addEntries?.entries &&
+            entry.addEntries.entries.filter(
+                entry => entry.entryId == "sq-cursor-bottom"
+            )
+        if (!entries || !entries.length) return
+        const foundEntry = entries[0]
+        if (foundEntry.content?.operation?.cursor?.cursorType != "Bottom")
+            return
+        return foundEntry.content?.operation?.cursor?.value
+    }
+    if (instructions.length < 3) return
+    const entry = instructions[2] as ReplaceEntry
+    if (
+        entry.replaceEntry?.entry?.content?.operation?.cursor?.cursorType !=
+        "Bottom"
+    ) {
+        return
+    }
+    return entry.replaceEntry?.entry?.content?.operation?.cursor?.value
+}

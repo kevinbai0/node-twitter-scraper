@@ -30,9 +30,45 @@ export type Users = {
     [key: string]: User
 }
 
+interface OperationCursor {
+    cursor?: {
+        value?: string
+        cursorType?: "Top" | "Bottom"
+    }
+}
+
+export interface AddEntry {
+    addEntries?: {
+        entries?: {
+            entryId?: string
+            sortIndex?: string
+            content?: {
+                item?: object
+                operation?: OperationCursor
+            }
+        }[]
+    }
+}
+
+export interface ReplaceEntry {
+    replaceEntry?: {
+        entryIdToReplace?: string
+        entry?: {
+            entryId?: string
+            sortIndex?: string
+            content?: {
+                operation?: OperationCursor
+            }
+        }
+    }
+}
+
 export interface ResponseData {
     globalObjects?: {
         tweets?: Tweets
         users?: Users
+    }
+    timeline?: {
+        instructions?: (AddEntry | ReplaceEntry)[]
     }
 }
