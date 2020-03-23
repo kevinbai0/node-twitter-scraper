@@ -74,7 +74,7 @@ async function scrapeTweets(
         )) as JSHandle<HTMLElement>
 
         eventsEmitter.on("loaded", () => {
-            scrollPage(page, bodyHandle).then(() => {
+            scrollPage(page, bodyHandle, () => {
                 browser.close()
                 resolve()
             })
